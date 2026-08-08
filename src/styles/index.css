@@ -1,0 +1,1121 @@
+:root {
+  --bg: #07070b;
+  --fg: #f4f4f5;
+  --accent: #8b5cf6;
+  font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--fg);
+  /* Let Lenis own the scroll */
+  overscroll-behavior: none;
+}
+
+/* lenis recommended styles */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+#root {
+  position: relative;
+  width: 100%;
+}
+
+/* ------------------------------------------------------------------
+   2ndBG — fixed, always visible, fills the viewport.
+   `position: fixed` keeps it locked to the screen so it never moves
+   while the foreground zooms. `cover` makes it fill the screen
+   regardless of aspect ratio.
+   ------------------------------------------------------------------ */
+.bg-base {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: #000;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.bg-base img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ------------------------------------------------------------------
+   Person1 reveal — the only owner of Person1. Pinned section.
+   ------------------------------------------------------------------ */
+.person1-reveal {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  z-index: 3;
+  background: transparent;
+}
+
+.person1-reveal__stage {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  pointer-events: none;
+}
+
+.person1-reveal__stage img {
+  display: block;
+  height:100%;
+  max-width: 100%;
+  object-fit: contain;
+  object-position: 0% 100%;
+  will-change: opacity, filter;
+  user-select: none;
+  /* Fix the revealed Person1 to the viewport so Intro, Skills, and
+     PersonSequence can scroll over it and hand off to it cleanly. */
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  z-index: 2;
+}
+
+/* Fix the revealed Person1 to the viewport throughout the normal flow.
+   It remains visible over the 2ndBG while Introduction and Skills scroll,
+   then PersonSequence fades this same image into Person2.
+   z-index: 0 keeps it behind text content within .content. */
+.person1-reveal__stage img {
+  position: fixed;
+  inset: auto auto 0 0;
+  z-index: 0;
+}
+
+.person1-reveal__hint {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(244, 244, 245, 0.55);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ------------------------------------------------------------------
+   1stBG stage — pinned by ScrollTrigger. Same size as the viewport
+   so the centered image can scale symmetrically.
+   ------------------------------------------------------------------ */
+.scene {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  z-index: 2;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bg {
+  /* `cover` fills the entire viewport (no letterboxing). The image's
+     center is anchored at the viewport center for a symmetric zoom. */
+  display: block;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 38%; /* nudge up so BUILDING FUTURE stays in view */
+  will-change: transform;
+  user-select: none;
+  pointer-events: none;
+  /* The critical bit: zoom around the image's exact center. */
+  transform-origin: 50% 50%;
+  transform: scale(1);
+}
+
+/* Content sits above the pinned scene and the static Person5 anchor */
+.content {
+  position: relative;
+  z-index: 4;
+}
+
+/* Initial instruction shown on the 1stBG screen. Centered just to the
+   right of the monitor image's mid-point. Scene.jsx fades it out as
+   soon as the zoom timeline starts. */
+.scene-scroll-prompt {
+  position: absolute;
+  left: 55%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 4;
+  margin: 0;
+  color: rgba(244, 244, 245, 0.95);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.85);
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+  animation: scroll-prompt-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes scroll-prompt-pulse {
+  0%, 100% { opacity: 0.9; }
+  50% { opacity: 0.5; }
+}
+
+
+
+section {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 8rem 2rem;
+  /* Sections sit above the fixed Person1 image (z-index: 0). */
+  position: relative;
+  z-index: 1;
+}
+
+section h2 {
+  font-size: clamp(2.5rem, 8vw, 6rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  text-align: center;
+}
+
+section p {
+  margin-top: 1.5rem;
+  max-width: 42ch;
+  text-align: center;
+  font-size: 1.125rem;
+  color: #a1a1aa;
+}
+
+/* ------------------------------------------------------------------
+   Introduction section — eyebrow label + hero headline.
+   Like Person1.png, this section is a FIXED overlay pinned to the
+   viewport. Its content slams in (kinetic lower-third) when scrolled
+   to and fades out in place — it never translates with the page.
+   The accompanying `[data-reveal-spacer]` keeps the page tall enough
+   for ScrollTrigger to fire on this fixed overlay.
+   ------------------------------------------------------------------ */
+.section--intro {
+  position: fixed;
+  inset: 0;
+  z-index: 4;
+  min-height: 0;
+  height: 100vh;
+  /* Shift content up from center toward a "lower-third" position:
+     equal-ish space above and below, but slightly above center.
+     Section stays centered horizontally (no overlap with Person1),
+     but the text inside is left-aligned (not center-indented). */
+  padding: 8vh 3rem 0;
+  justify-content: flex-start;
+  text-align: center;
+  align-items: center;
+  pointer-events: none;
+  /* IMPORTANT: do NOT set opacity:0 here. GSAP animates the children's
+     opacity/blur/scale via the scrub timeline. A static opacity:0 on
+     the parent hides everything even when children's opacity is 1. */
+}
+
+.section--intro > * {
+  pointer-events: auto;
+}
+
+/* Gate hover effects (eyebrow glow, etc.) while the section is hidden
+   below its mask slit. The .is-active class is toggled by the scrub
+   timeline's onToggle callback — without it, :hover styles fire even
+   when the section's text is at yPercent:100 and visually invisible. */
+.section--intro:not(.is-active) > *,
+.section--intro:not(.is-active) > * > * {
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------------------
+   3D tilt wrapper — the entire intro block rotates with the cursor.
+   Uses CSS perspective so children can sit at different depths.
+   `will-change: transform` keeps the tilt cheap.
+   ------------------------------------------------------------------ */
+.intro-3d-wrap {
+  perspective: 1200px;
+  perspective-origin: 50% 50%;
+  transform-style: preserve-3d;
+  will-change: transform;
+  transform-origin: 50% 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Each paragraph lives at its own translateZ depth (controlled by
+   [data-tilt-depth] in JSX). Higher depth = further from camera =
+   bigger parallax displacement when the wrap tilts. */
+.intro-3d-wrap > .mask,
+.intro-3d-wrap > h2,
+.intro-3d-wrap > .intro-copy,
+.intro-3d-wrap > .intro-copy > p {
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.intro-3d-wrap [data-tilt-depth] {
+  /* translateZ is set inline via GSAP, but the will-change hint
+     keeps it cheap. The CSS only reserves compositing. */
+  will-change: transform;
+}
+
+/* Subtle "techy" hover effect for the eyebrow badge — glows and
+   lifts when the cursor is over the intro block. */
+.intro-3d-wrap:hover .eyebrow {
+  box-shadow:
+    0 0 0 1px rgba(139, 92, 246, 0.6),
+    0 0 24px rgba(139, 92, 246, 0.35);
+}
+
+/* Subtle accent: name + first paragraph get a faint cyan glow to
+   sell the "techy" feel without overpowering the text. */
+.section--intro h2.name {
+  text-shadow: 0 0 24px rgba(139, 92, 246, 0.18);
+}
+
+[data-reveal-spacer] {
+  display: block;
+  width: 100%;
+  /* Tall enough to give the scrubbed timeline a comfortable scroll
+     range between enter and exit. With this height, the intro/skills
+     text stays visible long enough to read while scrolling normally,
+     and fast flicks still trigger deterministic scrub updates. */
+  height: 150vh;
+}
+
+.eyebrow {
+  display: inline-block;
+  padding: 0.65rem 1.25rem;
+  font-size: 1.05rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #8b5cf6;
+  background: rgba(139, 92, 246, 0.12);
+  border: 1px solid rgba(139, 92, 246, 0.35);
+  border-radius: 999px;
+}
+
+/* ------------------------------------------------------------------
+   Masked Reveal — text slides up through an overflow:hidden slit.
+
+   .mask          the clipping container (the "slit"); hides overflow
+   .mask__inner   the actual text, starts below the slit (y: 100%)
+                  and slides up into view (y: 0)
+
+   Works for both inline text (eyebrow, skill-chip text) and block
+   text (paragraphs, per-word headline spans).
+   ------------------------------------------------------------------ */
+.mask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  /* Inline masks need to behave like inline-block for the overflow
+     to actually clip; padding/border on the inner element keeps
+     the visible content flush. */
+  line-height: 1;
+}
+
+/* The eyebrow sits inside its own .mask. Give the mask some bottom
+   space so it doesn't collide with the headline below.
+   `align-self: center` keeps the chip centered as a group (so it
+   doesn't overlap Person1), while text-align: left un-indents the
+   text inside. */
+.section--intro > .mask,
+.section--skills > .mask {
+  margin-bottom: 1.5rem;
+  align-self: center;
+  text-align: left;
+}
+
+.mask__inner {
+  display: inline-block;
+  will-change: transform;
+}
+
+/* Block-level mask — used for paragraphs (the eyebrow and skill chips
+   keep their existing inline-block layout via the chip itself). */
+.section--intro p.mask,
+.section--skills p.mask {
+  display: block;
+  max-width: 52ch;
+  margin: 0.75rem 0 0;
+  line-height: 1.6;
+  text-align: left;
+}
+
+/* Intro copy container — holds multiple paragraphs. */
+.intro-copy {
+  margin-top: 1.5rem;
+  align-self: center;
+  text-align: left;
+}
+
+/* Intro name (h2) — smaller than the headline, but still bold.
+   Centered as a block (so it doesn't overlap Person1) but the
+   text inside is left-aligned (no center-indent). */
+.section--intro h2.name {
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  margin-bottom: 0.5rem;
+  align-self: center;
+  text-align: left;
+}
+
+/* Intro body paragraphs — full white, normal weight (override the
+   generic `section p` muted gray color). */
+.section--intro .intro-copy p .mask__inner {
+  color: #f4f4f5;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* ------------------------------------------------------------------
+   Skills section — same fixed-overlay behaviour as .section--intro.
+   The text content is pinned to the viewport (just like Person1) and
+   only its opacity/blur changes — never translating with the page.
+   ------------------------------------------------------------------ */
+.section--skills {
+  position: fixed;
+  inset: 0;
+  z-index: 5; /* above Intro so it wins during the overlap */
+  min-height: 0;
+  height: 100vh;
+  /* Match .section--intro vertical position for consistent layout. */
+  padding: 8vh 2rem 0;
+  justify-content: flex-start;
+  text-align: center;
+  pointer-events: none;
+  /* Same as .section--intro — no static opacity:0 here. GSAP controls. */
+}
+
+.section--skills > * {
+  pointer-events: auto;
+}
+
+/* Gate skill-chip :hover (purple background + lift) while the chips
+   are still hidden below their mask slits. The .is-active class is
+   toggled by the chip scrub timeline's onToggle callback. Without
+   this gate, the purple hover fires as soon as the cursor enters the
+   viewport, even when the chip text is at yPercent:100. */
+.section--skills:not(.is-active) > *,
+.section--skills:not(.is-active) * {
+  pointer-events: none;
+}
+
+.skills-grid {
+  margin-top: 3rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+  max-width: 720px;
+}
+
+.skill-chip {
+  display: inline-block;
+  padding: 0;
+  /* The visual style lives on the inner text wrapper so the .mask
+     itself stays a transparent clipping container. */
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  border-radius: 999px;
+  overflow: hidden;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.skill-chip .mask__inner {
+  display: inline-block;
+  padding: 0.65rem 1.25rem;
+  color: #f4f4f5;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  backdrop-filter: blur(8px);
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.skill-chip:hover .mask__inner {
+  background: rgba(139, 92, 246, 0.15);
+  border-color: rgba(139, 92, 246, 0.45);
+  transform: translateY(-2px);
+}
+
+.skill-chip:hover {
+  background: rgba(139, 92, 246, 0.15);
+  border-color: rgba(139, 92, 246, 0.45);
+  transform: translateY(-2px);
+}
+
+/* ------------------------------------------------------------------
+   Person sequence — crossfade Person1 → Person5 before Projects.
+   Pinned by ScrollTrigger. All layers share the same screen position
+   so the crossfade reads as one continuous person swapping poses.
+   ------------------------------------------------------------------ */
+.person-sequence {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  /* Do not clip fixed Person2..Person5 layers; Person5 must remain
+     visible when the Projects section begins. */
+  overflow: visible;
+  z-index: 3; /* same layer as .content so it covers the fixed .bg-person */
+  background: transparent;
+}
+
+.person-sequence__stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.person-layer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  pointer-events: none;
+}
+
+.person-layer img {
+  /* Same fixed anchoring as Person1, so Person5 stays in place when
+     the Projects conveyor pins over this section. */
+  position: fixed;
+  inset: auto auto 0 0;
+  display: block;
+  height: 80%;
+  max-width: 80%;
+  object-fit: contain;
+  object-position: 0% 100%; /* left edge, bottom */
+  will-change: opacity, transform;
+  user-select: none;
+  z-index: 0;
+}
+
+/* ------------------------------------------------------------------
+   Person5 handoff anchor — fixed bottom-left, layered above 2ndBG and
+   behind Projects. Rendered outside all pinned sections so it stays put
+   regardless of pin spacers/transforms. PersonSequence reveals it via
+   GSAP when the crossfade reaches Person5.
+   ------------------------------------------------------------------ */
+.person5-anchor {
+  position: fixed;
+  inset: auto auto 0 0;
+  z-index: 3;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  pointer-events: none;
+}
+
+.person5-anchor img {
+  display: block;
+  height: 60%;
+  max-width: 60%;
+  object-fit: contain;
+  object-position: 0% 100%;
+  will-change: opacity, transform;
+  user-select: none;
+  opacity: 0;
+}
+
+.person-sequence__hint {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(244, 244, 245, 0.55);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* hide native scrollbar for cleaner look */
+::-webkit-scrollbar {
+  width: 0;
+}
+
+/* ------------------------------------------------------------------
+   Projects — 3D coverflow sequence.
+   `.projects` is pinned by ScrollTrigger; `.projects__stage` provides
+   the perspective for the 3D transforms. Each `.frame` is positioned
+   with translate3d + rotateY so they can swing around in depth.
+   ------------------------------------------------------------------ */
+.projects {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  z-index: 10;
+  background: transparent;
+  perspective: 1400px;
+  perspective-origin: 50% 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.projects__stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  z-index: 11;
+}
+
+.frame {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(560px, 70vw);
+  aspect-ratio: 16 / 10;
+  transform-style: preserve-3d;
+  /* GSAP sets xPercent / yPercent / z / rotationY / opacity */
+  will-change: transform, opacity;
+  /* Enable hover only when the card is actually visible (opacity > 0).
+     GSAP sets inline opacity on every frame, so opacity:0 cards are
+     naturally non-interactive. We still allow pointer-events: auto so
+     the hover effects below can fire. */
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.frame__inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 18px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #1a1a25, #0a0a12);
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 255, 255, 0.06);
+  backface-visibility: hidden;
+  transition: box-shadow 0.35s ease;
+}
+
+/* Hover: purple accent ring + soft purple glow shadow. No scale —
+   scaling is omitted because it interacted poorly with the 3D orbit
+   transforms (rotation + translate + z) on the parent .frame, cutting
+   the left/top edges after projection. A box-shadow hover is purely
+   additive — the shadow extends outside the element's box without
+   affecting the element's own size or its position in the orbit.
+
+   The .is-hovered class is toggled by JS (mouseenter/mouseleave)
+   instead of CSS :hover because the browser's :hover hit-testing is
+   unreliable on 3D-transformed elements that update their transform
+   every scroll frame — the hit area shifts with each transform,
+   causing the hover state to flicker. */
+.frame.is-hovered .frame__inner {
+  box-shadow:
+    0 0 0 2px rgba(139, 92, 246, 0.7),
+    0 30px 100px rgba(139, 92, 246, 0.35);
+}
+
+.frame__inner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  /* fallback while assets are missing */
+  background: #1b1b25;
+  transition: filter 0.35s ease;
+}
+
+.frame.is-hovered .frame__inner img {
+  filter: brightness(1.15);
+}
+
+.frame__meta {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 1.25rem 1.5rem;
+  /* Clip the meta gradient to the card's bottom rounded corners. */
+  border-radius: 0 0 18px 18px;
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0));
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  transform: translateY(12px);
+  opacity: 0.82;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.4s ease;
+}
+
+/* Meta slides up fully and becomes opaque on hover */
+.frame.is-hovered .frame__meta {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.frame__tag {
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #8b5cf6;
+  font-weight: 600;
+}
+
+.frame__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #f4f4f5;
+  margin: 0;
+}
+
+.projects__hint {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(244, 244, 245, 0.55);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ------------------------------------------------------------------
+   Project modal — hologram monitor popup.
+   Triggered by clicking any .frame. Designed to read like a tactical
+   HUD: chamfered corners, grid lines, scanline sweep, soft purple glow.
+   ------------------------------------------------------------------ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(7, 7, 11, 0.82);
+  /* Light blur only — `saturate` is expensive to composite when
+     combined with an animated/transformed child, and a soft blur
+     covers the page without the perf cost. */
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  /* GSAP sets opacity on entry/exit. */
+}
+
+.modal-monitor {
+  position: relative;
+  width: min(960px, 92vw);
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 1.75rem;
+  border-radius: 14px;
+  background:
+    linear-gradient(180deg, rgba(20, 14, 35, 0.95), rgba(8, 6, 18, 0.95));
+  border: 1px solid rgba(139, 92, 246, 0.35);
+  box-shadow:
+    0 0 0 1px rgba(139, 92, 246, 0.18),
+    0 30px 100px rgba(0, 0, 0, 0.7),
+    0 0 80px rgba(139, 92, 246, 0.25),
+    inset 0 0 60px rgba(139, 92, 246, 0.06);
+  /* NO preserve-3d / perspective — the rotateY animation was removed.
+     This keeps the monitor on a single flat composited layer, which
+     the GPU can slide and scale without re-rasterizing the children. */
+  overflow: hidden;
+  color: #f4f4f5;
+  /* Hint to the GPU that this layer will be animated. */
+  will-change: transform, opacity;
+}
+
+/* Chamfered corner brackets — decorative tactical HUD look. */
+.monitor-corner {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-color: rgba(139, 92, 246, 0.85);
+  border-style: solid;
+  border-width: 0;
+  pointer-events: none;
+}
+.monitor-corner--tl { top: 8px; left: 8px;     border-top-width: 2px;    border-left-width: 2px; }
+.monitor-corner--tr { top: 8px; right: 8px;    border-top-width: 2px;    border-right-width: 2px; }
+.monitor-corner--bl { bottom: 8px; left: 8px;  border-bottom-width: 2px; border-left-width: 2px; }
+.monitor-corner--br { bottom: 8px; right: 8px; border-bottom-width: 2px; border-right-width: 2px; }
+
+/* Decorative grid lines across the monitor face. */
+.monitor-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(139, 92, 246, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139, 92, 246, 0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+  /* Slight angle gives the grid a "screen" feel. */
+  transform: perspective(800px) rotateX(0deg);
+}
+
+/* Top status bar — small dots + project ID label. */
+.monitor-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  color: rgba(244, 244, 245, 0.55);
+  text-transform: uppercase;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid rgba(139, 92, 246, 0.18);
+  user-select: none;
+}
+
+.status-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+.status-dot--green {
+  background: #4ade80;
+  box-shadow: 0 0 6px rgba(74, 222, 128, 0.7);
+}
+.status-dot--amber {
+  background: #fbbf24;
+  box-shadow: 0 0 6px rgba(251, 191, 36, 0.6);
+}
+.status-label {
+  margin-left: 0.4rem;
+}
+
+/* Close button — top right. */
+.modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: rgba(139, 92, 246, 0.12);
+  border: 1px solid rgba(139, 92, 246, 0.35);
+  color: rgba(244, 244, 245, 0.85);
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  z-index: 2;
+}
+.modal-close:hover {
+  background: rgba(139, 92, 246, 0.3);
+  border-color: rgba(139, 92, 246, 0.7);
+  transform: rotate(90deg);
+}
+
+/* Main content: image left, text right. */
+.modal-content {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: 1.75rem;
+  padding: 1.5rem 0;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Image side: framed monitor sub-display. */
+.modal-image-wrap {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.image-frame {
+  position: relative;
+  flex: 1;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #050510;
+  border: 1px solid rgba(139, 92, 246, 0.35);
+  box-shadow:
+    inset 0 0 30px rgba(139, 92, 246, 0.1),
+    0 10px 30px rgba(0, 0, 0, 0.4);
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Lightweight hologram tint — a single saturate/contrast + a single
+     drop-shadow. The previous multi-step filter chain (4 functions)
+     was re-rasterizing on every frame because the parent .modal-monitor
+     is being animated (transform + opacity). */
+  filter:
+    saturate(1.05)
+    drop-shadow(0 0 20px rgba(139, 92, 246, 0.25));
+  /* Floating motion is driven by GSAP yoyo on the JS side. */
+  will-change: transform;
+}
+
+/* Scanline overlay sitting on top of the image only. */
+.image-frame::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0) 0px,
+    rgba(0, 0, 0, 0) 2px,
+    rgba(139, 92, 246, 0.06) 2px,
+    rgba(139, 92, 246, 0.06) 3px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.image-frame-label {
+  margin-top: 0.5rem;
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  color: rgba(139, 92, 246, 0.85);
+  text-align: center;
+  text-transform: uppercase;
+  user-select: none;
+}
+
+/* Text side */
+.modal-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.text-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  color: rgba(244, 244, 245, 0.55);
+  text-transform: uppercase;
+}
+
+.text-meta .tag {
+  color: #c4b5fd;
+  padding: 0.25rem 0.6rem;
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  border-radius: 4px;
+  background: rgba(139, 92, 246, 0.12);
+}
+
+.meta-divider { opacity: 0.4; }
+.meta-id { color: rgba(244, 244, 245, 0.65); }
+
+.modal-title {
+  font-size: clamp(1.75rem, 3.4vw, 2.6rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  margin: 0;
+  background: linear-gradient(120deg, #f4f4f5 30%, #c4b5fd 70%, #8b5cf6 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 0 30px rgba(139, 92, 246, 0.15);
+}
+
+.modal-description {
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: rgba(244, 244, 245, 0.78);
+  margin: 0;
+}
+
+/* Tech stack chips */
+.modal-tech {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: auto;
+  padding-top: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.modal-tech-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.tech-label {
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  color: rgba(139, 92, 246, 0.85);
+  text-transform: uppercase;
+}
+
+.tech-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.tech-chip {
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #f4f4f5;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.tech-chip:hover {
+  background: rgba(139, 92, 246, 0.15);
+  border-color: rgba(139, 92, 246, 0.45);
+}
+
+/* Project link — sits to the right of the stack on the same row. */
+.modal-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 0.9rem 0.55rem 1rem;
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #f4f4f5;
+  background: rgba(139, 92, 246, 0.12);
+  border: 1px solid rgba(139, 92, 246, 0.45);
+  border-radius: 8px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease,
+              transform 0.2s ease, box-shadow 0.2s ease;
+  flex: 0 0 auto;
+  white-space: nowrap;
+  /* `self-align` so it sits at the bottom of the row, aligned with
+     the bottom of the chip stack instead of stretching. */
+  align-self: flex-end;
+}
+
+.modal-link:hover {
+  background: rgba(139, 92, 246, 0.25);
+  border-color: rgba(139, 92, 246, 0.85);
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.4),
+              0 0 24px rgba(139, 92, 246, 0.35);
+}
+
+.modal-link-icon {
+  display: inline-block;
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.modal-link:hover .modal-link-icon {
+  transform: translate(2px, -2px);
+}
+
+/* Bottom footer status bar. */
+.monitor-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid rgba(139, 92, 246, 0.18);
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  color: rgba(244, 244, 245, 0.5);
+  text-transform: uppercase;
+  user-select: none;
+}
+
+.footer-sep { color: rgba(139, 92, 246, 0.5); }
+
+/* Full-monitor scanline sweep — GSAP animates yPercent. */
+.monitor-scanline {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(139, 92, 246, 0) 0%,
+    rgba(139, 92, 246, 0.07) 40%,
+    rgba(139, 92, 246, 0.18) 50%,
+    rgba(139, 92, 246, 0.07) 60%,
+    rgba(139, 92, 246, 0) 100%
+  );
+  /* Above everything else in the monitor, including the grid. */
+  z-index: 3;
+  /* mix-blend-mode forces a separate compositing pass; simple opacity
+     is much cheaper and reads the same on a dark background. */
+  opacity: 0.85;
+  will-change: transform;
+}
+
+/* Responsive: stack the image above the text on narrow viewports. */
+@media (max-width: 720px) {
+  .modal-content {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+  .image-frame {
+    min-height: 180px;
+  }
+}
+
