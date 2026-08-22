@@ -1,0 +1,170 @@
+- generic [ref=e2]:
+  - generic [ref=e4]:
+    - paragraph: Scroll Down ↓
+  - main [ref=e5]:
+    - generic:
+      - generic:
+        - generic: Software Engineer
+        - heading "Adrian Abellanosa" [level=2]:
+          - generic: Adrian
+          - generic: Abellanosa
+        - generic:
+          - paragraph:
+            - generic: I design and build digital experiences that make complex workflows simple.
+          - paragraph:
+            - generic: With 2 years of professional experience, I develop and maintain enterprise systems for a Philippine local government agency, delivering reliable software that supports thousands of daily operations.
+          - paragraph:
+            - generic: By combining modern web technologies with AI-powered development—including Claude Code, ChatGPT, GitHub Copilot, and intelligent automation—I transform ideas into scalable, efficient, and maintainable solutions.
+          - paragraph:
+            - generic: I don't just write code—I engineer systems that last.
+    - generic:
+      - generic: Toolkit
+      - heading "Skills & Stack" [level=2]:
+        - generic: Skills
+        - generic: "&"
+        - generic: Stack
+      - generic:
+        - generic: React
+        - generic: TypeScript
+        - generic: Next.js
+        - generic: Vite
+        - generic: Tailwind
+        - generic: GSAP
+        - generic: Framer Motion
+        - generic: Three.js
+        - generic: WebGL
+        - generic: Lenis
+        - generic: Node.js
+        - generic: Laravel
+        - generic: PHP
+        - generic: REST APIs
+        - generic: GraphQL
+        - generic: Supabase
+        - generic: PostgreSQL
+        - generic: MySQL
+        - generic: SQL
+        - generic: Git
+        - generic: GitHub
+        - generic: Vercel
+        - generic: Docker
+        - generic: Figma
+        - generic: Claude Code
+        - generic: ChatGPT
+        - generic: GitHub Copilot
+        - generic: Cursor
+        - generic: AI Automation
+        - generic: and more
+    - generic [ref=e13]:
+      - generic [ref=e14]:
+        - article [ref=e15] [cursor=pointer]:
+          - generic [ref=e16]:
+            - generic [ref=e17]:
+              - img "Previous Portfolio" [ref=e18]
+              - generic [ref=e19]:
+                - generic [ref=e20]: Web
+                - heading "Previous Portfolio" [level=3] [ref=e21]
+              - generic: ⤿ tap to flip
+            - generic [ref=e23]:
+              - generic [ref=e24]:
+                - generic [ref=e25]: Web
+                - generic [ref=e26]: /
+                - generic [ref=e27]: ID_01
+              - heading "Previous Portfolio" [level=3] [ref=e28]
+              - paragraph [ref=e29]: Adrian3DPort is an interactive 3D developer portfolio showcasing projects, technical skills, certificates, and contact information through immersive animations and models.
+              - generic [ref=e30]:
+                - generic [ref=e31]: React
+                - generic [ref=e32]: Vite
+                - generic [ref=e33]: Tailwind
+                - generic [ref=e34]: Three.js / React Three Fiber
+                - generic [ref=e35]: Framer Motion
+              - link "View Live" [ref=e36]:
+                - /url: https://adrian3-d-port.vercel.app/
+        - article [ref=e40] [cursor=pointer]:
+          - generic [ref=e41]:
+            - generic [ref=e42]:
+              - img "Project Two" [ref=e43]
+              - generic [ref=e44]:
+                - generic [ref=e45]: 3D
+                - heading "Project Two" [level=3] [ref=e46]
+              - generic: ⤿ tap to flip
+            - generic [ref=e48]:
+              - generic [ref=e49]:
+                - generic [ref=e50]: 3D
+                - generic [ref=e51]: /
+                - generic [ref=e52]: ID_02
+              - heading "Project Two" [level=3] [ref=e53]
+              - paragraph [ref=e54]: An interactive 3D product viewer built with Three.js. Supports orbit, pan, and zoom with shader-based materials and environment lighting for realistic reflections.
+              - generic [ref=e55]:
+                - generic [ref=e56]: Three.js
+                - generic [ref=e57]: WebGL
+                - generic [ref=e58]: GLSL
+              - link "View Demo" [ref=e59]:
+                - /url: "#"
+        - article [ref=e63] [cursor=pointer]:
+          - generic [ref=e64]:
+            - generic [ref=e65]:
+              - img "ShopSmart" [ref=e66]
+              - generic [ref=e67]:
+                - generic [ref=e68]: Mobile App
+                - heading "ShopSmart" [level=3] [ref=e69]
+              - generic: ⤿ tap to flip
+            - generic [ref=e71]:
+              - generic [ref=e72]:
+                - generic [ref=e73]: Mobile App
+                - generic [ref=e74]: /
+                - generic [ref=e75]: ID_03
+              - heading "ShopSmart" [level=3] [ref=e76]
+              - paragraph [ref=e77]: A mobile-first online shopping platform with a Capacitor Android wrapper. Features multi-role dashboards (DTI regulatory, stores, customers), geolocation-based store discovery using a custom KNN algorithm, Philippine DTI SRP price verification, OCR-based business permit verification, OAuth with deep-link support, and Supabase RLS for fine-grained access control. Cross-platform — same React codebase runs on web and Android.
+              - generic [ref=e78]:
+                - generic [ref=e79]: React 18 + TypeScript
+                - generic [ref=e80]: Ionic React
+                - generic [ref=e81]: Vite
+                - generic [ref=e82]: Capacitor (Android)
+                - generic [ref=e83]: Supabase (PostgreSQL + Auth)
+                - generic [ref=e84]: KNN Geolocation
+                - generic [ref=e85]: OCR Permit Verification
+              - link "View Case Study" [ref=e86]:
+                - /url: "#"
+        - article [ref=e90] [cursor=pointer]:
+          - generic [ref=e91]:
+            - generic [ref=e92]:
+              - img "Project Four" [ref=e93]
+              - generic [ref=e94]:
+                - generic [ref=e95]: App
+                - heading "Project Four" [level=3] [ref=e96]
+              - generic: ⤿ tap to flip
+            - generic [ref=e98]:
+              - generic [ref=e99]:
+                - generic [ref=e100]: App
+                - generic [ref=e101]: /
+                - generic [ref=e102]: ID_04
+              - heading "Project Four" [level=3] [ref=e103]
+              - paragraph [ref=e104]: A cross-platform mobile application prototype with focus on offline-first architecture, smooth navigation, and a hand-crafted design system.
+              - generic [ref=e105]:
+                - generic [ref=e106]: React Native
+                - generic [ref=e107]: Expo
+                - generic [ref=e108]: SQLite
+              - link "View on App Store" [ref=e109]:
+                - /url: "#"
+        - article [ref=e113] [cursor=pointer]:
+          - generic [ref=e114]:
+            - generic [ref=e115]:
+              - img "Project Five" [ref=e116]
+              - generic [ref=e117]:
+                - generic [ref=e118]: Motion
+                - heading "Project Five" [level=3] [ref=e119]
+              - generic: ⤿ tap to flip
+            - generic [ref=e121]:
+              - generic [ref=e122]:
+                - generic [ref=e123]: Motion
+                - generic [ref=e124]: /
+                - generic [ref=e125]: ID_05
+              - heading "Project Five" [level=3] [ref=e126]
+              - paragraph [ref=e127]: A motion-graphics reel exploring kinetic typography, particle systems, and procedural animation. All transitions built with GSAP timelines and SVG morphing.
+              - generic [ref=e128]:
+                - generic [ref=e129]: GSAP
+                - generic [ref=e130]: SVG
+                - generic [ref=e131]: Lottie
+              - link "Watch Reel" [ref=e132]:
+                - /url: "#"
+      - paragraph: Scroll to browse · Click to flip

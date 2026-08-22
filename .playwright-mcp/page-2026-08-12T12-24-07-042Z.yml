@@ -1,0 +1,180 @@
+- generic [ref=f3e2]:
+  - generic [ref=f3e4]:
+    - paragraph: Scroll Down ↓
+  - main [ref=f3e5]:
+    - generic:
+      - generic:
+        - generic: Software Engineer
+        - heading "Adrian Abellanosa" [level=2]:
+          - generic: Adrian
+          - generic: Abellanosa
+        - generic:
+          - paragraph:
+            - generic: I design and build digital experiences that make complex workflows simple.
+          - paragraph:
+            - generic: With 2 years of professional experience, I develop and maintain enterprise systems for a Philippine local government agency, delivering reliable software that supports thousands of daily operations.
+          - paragraph:
+            - generic: By combining modern web technologies with AI-powered development—including Claude Code, ChatGPT, GitHub Copilot, and intelligent automation—I transform ideas into scalable, efficient, and maintainable solutions.
+          - paragraph:
+            - generic: I don't just write code—I engineer systems that last.
+    - generic:
+      - generic: Toolkit
+      - heading "Skills & Stack" [level=2]:
+        - generic: Skills
+        - generic: "&"
+        - generic: Stack
+      - generic:
+        - generic: React
+        - generic: TypeScript
+        - generic: Next.js
+        - generic: Vite
+        - generic: Tailwind
+        - generic: GSAP
+        - generic: Framer Motion
+        - generic: Three.js
+        - generic: WebGL
+        - generic: Lenis
+        - generic: Node.js
+        - generic: Laravel
+        - generic: PHP
+        - generic: REST APIs
+        - generic: GraphQL
+        - generic: Supabase
+        - generic: PostgreSQL
+        - generic: MySQL
+        - generic: SQL
+        - generic: Git
+        - generic: GitHub
+        - generic: Vercel
+        - generic: Docker
+        - generic: Figma
+        - generic: Claude Code
+        - generic: ChatGPT
+        - generic: GitHub Copilot
+        - generic: Cursor
+        - generic: AI Automation
+        - generic: and more
+    - generic [ref=f3e13]:
+      - generic [ref=f3e14]:
+        - article:
+          - generic:
+            - generic:
+              - img "Previous Portfolio"
+              - generic:
+                - generic: Web
+                - heading "Previous Portfolio" [level=3]
+              - generic: ⤿ tap to flip
+            - generic:
+              - generic:
+                - generic:
+                  - generic: Web
+                  - generic: /
+                  - generic: ID_01
+                - heading "Previous Portfolio" [level=3]
+                - paragraph: Adrian3DPort is an interactive 3D developer portfolio showcasing projects, technical skills, certificates, and contact information through immersive animations and models.
+                - generic:
+                  - generic: React
+                  - generic: Vite
+                  - generic: Tailwind
+                  - generic: Three.js / React Three Fiber
+                  - generic: Framer Motion
+                - link "View Live":
+                  - /url: https://adrian3-d-port.vercel.app/
+        - article:
+          - generic:
+            - generic:
+              - img "CKC-SHRMS"
+              - generic:
+                - generic: Full-stack PWA
+                - heading "CKC-SHRMS" [level=3]
+              - generic: ⤿ tap to flip
+            - generic:
+              - generic:
+                - generic:
+                  - generic: Full-stack PWA
+                  - generic: /
+                  - generic: ID_02
+                - heading "CKC-SHRMS" [level=3]
+                - paragraph: A full-stack Progressive Web App for managing a school clinic's day-to-day operations — patient/student health records, doctor appointments, prescriptions, medicine inventory, dental and physical exam tracking, and analytics. Built for Christ the King College (CKC) to digitize clinic workflows with role-based access for doctors, staff, and admins. PWA-installable for mobile/desktop offline access.
+                - generic:
+                  - generic: Laravel 11 (PHP 8.2)
+                  - generic: Blade + Tailwind + Alpine.js
+                  - generic: Flowbite UI
+                  - generic: MySQL
+                  - generic: Laravel Breeze (auth)
+                  - generic: Vite
+                  - generic: PWA (offline install)
+                  - generic: Maatwebsite/Excel
+                - link "View Case Study":
+                  - /url: "#"
+        - article:
+          - generic:
+            - generic:
+              - img "ShopSmart"
+              - generic:
+                - generic: Installable Mobile App
+                - heading "ShopSmart" [level=3]
+              - generic: ⤿ tap to flip
+            - generic:
+              - generic:
+                - generic:
+                  - generic: Installable Mobile App
+                  - generic: /
+                  - generic: ID_03
+                - heading "ShopSmart" [level=3]
+                - paragraph: An online mobile app for shopping, packaged via Capacitor. Features multi-role dashboards (DTI regulatory, stores, customers), geolocation-based store discovery using a custom KNN algorithm, Philippine DTI SRP price verification, OCR-based business permit verification, OAuth with deep-link support, and Supabase RLS for fine-grained access control. Built with Ionic React components for a native mobile UX, installable directly to the device.
+                - generic:
+                  - generic: React 18 + TypeScript
+                  - generic: Ionic React
+                  - generic: Vite
+                  - generic: Capacitor (Android APK)
+                  - generic: Supabase (PostgreSQL + Auth)
+                  - generic: KNN Geolocation
+                  - generic: OCR Permit Verification
+                - link "View Case Study":
+                  - /url: "#"
+        - article:
+          - generic:
+            - generic:
+              - img "Project Four"
+              - generic:
+                - generic: App
+                - heading "Project Four" [level=3]
+              - generic: ⤿ tap to flip
+            - generic:
+              - generic:
+                - generic:
+                  - generic: App
+                  - generic: /
+                  - generic: ID_04
+                - heading "Project Four" [level=3]
+                - paragraph: A cross-platform mobile application prototype with focus on offline-first architecture, smooth navigation, and a hand-crafted design system.
+                - generic:
+                  - generic: React Native
+                  - generic: Expo
+                  - generic: SQLite
+                - link "View on App Store":
+                  - /url: "#"
+        - article:
+          - generic:
+            - generic:
+              - img "Project Five"
+              - generic:
+                - generic: Motion
+                - heading "Project Five" [level=3]
+              - generic: ⤿ tap to flip
+            - generic:
+              - generic:
+                - generic:
+                  - generic: Motion
+                  - generic: /
+                  - generic: ID_05
+                - heading "Project Five" [level=3]
+                - paragraph: A motion-graphics reel exploring kinetic typography, particle systems, and procedural animation. All transitions built with GSAP timelines and SVG morphing.
+                - generic:
+                  - generic: GSAP
+                  - generic: SVG
+                  - generic: Lottie
+                - link "Watch Reel":
+                  - /url: "#"
+      - paragraph: Scroll to browse · Click to flip

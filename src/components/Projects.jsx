@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import ProjectModal from './ProjectModal'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -19,22 +18,23 @@ const PROJECTS = [
   },
   {
     id: 2,
-    title: 'Project Two',
-    tag: '3D',
-    img: '/projects/p2.jpg',
+    title: 'CKC-SHRMS',
+    tag: 'PWA clinical Record',
+    img: '/2ndProj.JPG',
+    contain: true,
     description:
-      'An interactive 3D product viewer built with Three.js. Supports orbit, pan, and zoom with shader-based materials and environment lighting for realistic reflections.',
-    tech: ['Three.js', 'WebGL', 'GLSL'],
-    link: { url: '#', label: 'View Demo' },
+      'A full-stack Progressive Web App for managing a school clinic\'s day-to-day operations — patient/student health records, doctor appointments, prescriptions, medicine inventory, dental and physical exam tracking, and analytics. Built for Christ the King College (CKC) to digitize clinic workflows with role-based access for doctors, staff, and admins. PWA-installable for mobile/desktop offline access.',
+    tech: ['Laravel 11 (PHP 8.2)', 'Blade + Tailwind + Alpine.js', 'Flowbite UI', 'MySQL', 'Laravel Breeze (auth)', 'Vite', 'PWA (offline install)', 'Maatwebsite/Excel'],
+    link: { url: '#', label: 'View Case Study' },
   },
   {
     id: 3,
-    title: 'Project Three',
-    tag: 'Brand',
-    img: '/projects/p3.jpg',
+    title: 'ShopSmart',
+    tag: 'Shopping mobile app',
+    img: '/3rdProj.png',
     description:
-      'A brand identity system for a local startup — including logo, color palette, typography, and motion guidelines. Designed to be flexible across print and digital media.',
-    tech: ['Figma', 'After Effects'],
+      'An online mobile app for shopping, packaged via Capacitor. Features multi-role dashboards (DTI regulatory, stores, customers), geolocation-based store discovery using a custom KNN algorithm, Philippine DTI SRP price verification, OCR-based business permit verification, OAuth with deep-link support, and Supabase RLS for fine-grained access control. Built with Ionic React components for a native mobile UX, installable directly to the device.',
+    tech: ['React 18 + TypeScript', 'Ionic React', 'Vite', 'Capacitor (Android APK)', 'Supabase (PostgreSQL + Auth)', 'KNN Geolocation', 'OCR Permit Verification'],
     link: { url: '#', label: 'View Case Study' },
   },
   {
@@ -84,7 +84,7 @@ const PROJECTS = [
 export default function Projects() {
   const sectionRef = useRef(null)
   const stageRef = useRef(null)
-  const [selectedProject, setSelectedProject] = useState(null)
+  const [flippedId, setFlippedId] = useState(null)
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -92,14 +92,14 @@ export default function Projects() {
       const count = frames.length
 
       // Orbit geometry (CSS px).
-      const radiusX = 820   // wider horizontal swing — uses more of the right side
+      const radiusX = 1050   // wider horizontal swing — uses more of the right side
       const radiusY = 380
-      const radiusZ = 900
+      const radiusZ = 1100
       const liftY = 380 // the "hole" sits high up
 
       // Belt spacing: how far apart cards are on the conveyor, in 0..1
       // units of one revolution. Smaller = cards closer together.
-      const SPACING = 0.16   // larger gap between cards to avoid overlap
+      const SPACING = 0.17   // larger gap between cards to avoid overlap
 
       // Fade thresholds (in 0..1 of one revolution).
       // progress = 0  -> back-top (the hole)
@@ -147,6 +147,10 @@ export default function Projects() {
       }
 
       // Initial state: every frame parked invisibly at the hole.
+      // pointerEvents:'none' is critical — without it, all 5 frames
+      // are stacked at the same hole position and intercept clicks for
+      // each other (so users perceive only the topmost frame as
+      // clickable). opacity:0 alone does NOT disable hit-testing.
       const startState = stateAt(0)
       gsap.set(frames, {
         xPercent: -50,
@@ -158,6 +162,7 @@ export default function Projects() {
         scale: startState.scale,
         opacity: 0,
         zIndex: (i) => count - i,
+        pointerEvents: 'none',
       })
 
       // Total scroll: enough to advance the belt so the last card reaches
@@ -194,6 +199,13 @@ export default function Projects() {
               // behind it on the conveyor.
               const unlocked = cardProgress >= 0
               const s = stateAt(cardProgress, unlocked)
+              // Disable pointer events on frames that are visually hidden
+              // (opacity near 0). Without this, all 5 frames are stacked
+              // at the same hole position initially and intercept clicks
+              // for each other even though they look invisible. Only the
+              // topmost z-indexed frame receives clicks, which is why the
+              // user perceives "only the 1st frame is clickable".
+              const isVisible = s.opacity > 0.05
               gsap.set(frame, {
                 x: s.x,
                 y: s.y,
@@ -203,6 +215,10 @@ export default function Projects() {
                 opacity: s.opacity,
                 // Deeper z = lower zIndex so front cards render on top.
                 zIndex: Math.round(10000 + s.z),
+                // Visibility-based pointer events. opacity:0 alone does
+                // NOT disable hit-testing — the element still receives
+                // pointer events at its transformed position.
+                pointerEvents: isVisible ? 'auto' : 'none',
               })
             })
           },
@@ -238,12 +254,12 @@ export default function Projects() {
     frames.forEach((frame, i) => {
       const onEnter = () => frame.classList.add('is-hovered')
       const onLeave = () => frame.classList.remove('is-hovered')
-      // Click opens the modal for this project. Use 'click' (not
-      // 'pointerdown') so it doesn't fire when the user is just
-      // scrolling past with a press.
+      // Click flips the card to reveal the back face (project
+      // details). Use 'click' (not 'pointerdown') so it doesn't fire
+      // when the user is just scrolling past with a press.
       const onClick = () => {
         const project = PROJECTS[i]
-        if (project) setSelectedProject(project)
+        if (project) setFlippedId((cur) => (cur === project.id ? null : project.id))
       }
       frame.addEventListener('mouseenter', onEnter)
       frame.addEventListener('mouseleave', onLeave)
@@ -262,25 +278,127 @@ export default function Projects() {
   return (
     <section className="projects" ref={sectionRef}>
       <div className="projects__stage" ref={stageRef}>
-        {PROJECTS.map((p) => (
-          <article className="frame" key={p.id}>
-            <div className="frame__inner">
-              <img src={p.img} alt={p.title} draggable={false} />
-              <div className="frame__meta">
-                <span className="frame__tag">{p.tag}</span>
-                <h3 className="frame__title">{p.title}</h3>
-              </div>
-            </div>
-          </article>
-        ))}
+        {PROJECTS.map((p) => {
+          // Each project gets an `orientation` class on its frame based
+          // on the image's natural aspect ratio, so portrait phone
+          // screenshots get a tall portrait frame (no squashing, no
+          // tiny letterboxed thumbnail) and landscape screenshots get
+          // the standard wide frame. The class is applied via inline
+          // detection below — see ImageProbe component after the map.
+          return (
+            <FrameCard
+              key={p.id}
+              project={p}
+              isFlipped={flippedId === p.id}
+            />
+          )
+        })}
       </div>
 
-      <p className="projects__hint">Scroll to browse projects</p>
-
-      <ProjectModal
-        project={selectedProject}
-        onClose={() => setSelectedProject(null)}
-      />
+      <p className="projects__hint">Scroll to browse · Click to flip</p>
     </section>
+  )
+}
+
+/**
+ * Single frame card. Loads the project image once, measures its
+ * natural dimensions, and applies `frame--portrait` or
+ * `frame--landscape` to the wrapper so CSS can size the frame
+ * adaptively. Without this, a portrait phone screenshot displayed in
+ * a landscape 16:10 frame looks tiny (contain) or stretched (cover).
+ *
+ * The probe is local state so it only runs once per card, not on
+ * every scroll tick.
+ */
+function FrameCard({ project, isFlipped }) {
+  const [orientation, setOrientation] = useState('landscape')
+
+  const onImgLoad = (e) => {
+    const img = e.currentTarget
+    // naturalWidth/naturalHeight give the image's intrinsic size
+    // before any CSS sizing — exactly what we need to decide the
+    // frame orientation.
+    if (img.naturalWidth && img.naturalHeight) {
+      setOrientation(img.naturalWidth >= img.naturalHeight ? 'landscape' : 'portrait')
+    }
+  }
+
+  return (
+    <article
+      className={`frame frame--${orientation}${isFlipped ? ' is-flipped' : ''}`}
+      data-project-id={project.id}
+    >
+      <div className="frame__card">
+        {/* ---------- FRONT FACE (image + title) ---------- */}
+        <div className="frame__face frame__front">
+          <img
+            src={project.img}
+            alt={project.title}
+            draggable={false}
+            onLoad={onImgLoad}
+            className={project.contain ? 'frame__img--contain' : ''}
+          />
+          <div className="frame__meta">
+            <span className="frame__tag">{project.tag}</span>
+            <h3 className="frame__title">{project.title}</h3>
+          </div>
+          <span className="frame__flip-hint" aria-hidden="true">⤿ tap to flip</span>
+        </div>
+
+        {/* ---------- BACK FACE (project details) ---------- */}
+        <div className="frame__face frame__back">
+          <div className="frame__back-grid" aria-hidden="true" />
+          <span className="frame__corner frame__corner--tl" />
+          <span className="frame__corner frame__corner--tr" />
+          <span className="frame__corner frame__corner--bl" />
+          <span className="frame__corner frame__corner--br" />
+
+          <div className="frame__back-content">
+            <div className="frame__back-meta">
+              <span className="frame__back-tag">{project.tag}</span>
+              <span className="frame__back-divider">/</span>
+              <span className="frame__back-id">ID_{String(project.id).padStart(2, '0')}</span>
+            </div>
+            <h3 className="frame__back-title">{project.title}</h3>
+            <p className="frame__back-desc">{project.description}</p>
+
+            {project.tech && project.tech.length > 0 && (
+              <div className="frame__back-stack">
+                {project.tech.map((t) => (
+                  <span key={t} className="frame__back-chip">{t}</span>
+                ))}
+              </div>
+            )}
+
+            {project.link?.url && (
+              <a
+                className="frame__back-link"
+                href={project.link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <span>{project.link.label || 'Open'}</span>
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M5 11L11 5M11 5H6M11 5V10"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </a>
+            )}
+          </div>
+        </div>
+      </div>
+    </article>
   )
 }

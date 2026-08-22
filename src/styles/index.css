@@ -603,63 +603,126 @@ section p {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: min(560px, 70vw);
+  /* Default: landscape 16/10. Portrait override below uses a taller
+     aspect ratio and narrower width so phone screenshots fill the
+     frame instead of being squashed into a tiny letterboxed thumbnail. */
+  width: min(720px, 80vw);
   aspect-ratio: 16 / 10;
   transform-style: preserve-3d;
+  /* Local perspective for the inner card flip. This is SEPARATE from
+     the GSAP orbit transforms on this element — GSAP moves the .frame
+     around in the stage's perspective, while the .frame's own
+     perspective is used for the flip rotation of .frame__card. */
+  perspective: 1400px;
   /* GSAP sets xPercent / yPercent / z / rotationY / opacity */
   will-change: transform, opacity;
-  /* Enable hover only when the card is actually visible (opacity > 0).
-     GSAP sets inline opacity on every frame, so opacity:0 cards are
-     naturally non-interactive. We still allow pointer-events: auto so
-     the hover effects below can fire. */
-  pointer-events: auto;
+  /* pointer-events is controlled by GSAP (auto when visible, none
+     when parked in the hole). All 5 frames are absolutely positioned
+     at the same hole location, so without this toggle, every
+     invisible frame still intercepts clicks at its transformed
+     position — meaning only the topmost (highest z-index) one is
+     actually clickable, regardless of which one the user is aiming
+     at. See the onUpdate callback in Projects.jsx. */
+  pointer-events: none;
   cursor: pointer;
 }
 
-.frame__inner {
+/* Portrait images (e.g. phone screenshots) get a tall narrow frame
+   so the image fills the card at a larger display size — sharper and
+   more readable than squeezing a portrait image into a landscape 16/10
+   frame where it ends up tiny and pixelated. */
+.frame--portrait {
+  width: min(340px, 42vw);
+  aspect-ratio: 412 / 823;
+}
+
+/* When JS marks the frame as visible, re-enable pointer events. The
+   inline style set by GSAP wins, so this is just a safe default. */
+.frame[style*="pointer-events: auto"] {
+  pointer-events: auto;
+}
+
+/* ---------- 3D FLIP CARD ---------- */
+/* The inner container that actually rotates. It lives inside .frame
+   (which GSAP positions in the orbit) and only handles the flip. */
+.frame__card {
   position: relative;
   width: 100%;
   height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.7s cubic-bezier(0.55, 0.085, 0.28, 0.99);
+}
+
+/* Flipped state — rotate 180deg on Y to reveal the back face. */
+.frame.is-flipped .frame__card {
+  transform: rotateY(180deg);
+}
+
+/* Shared face styles. Both faces are absolutely positioned and
+   backface-hidden so only one is visible at a time. */
+.frame__face {
+  position: absolute;
+  inset: 0;
   border-radius: 18px;
   overflow: hidden;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* ---------- FRONT FACE ---------- */
+.frame__front {
   background: linear-gradient(135deg, #1a1a25, #0a0a12);
   box-shadow:
     0 30px 80px rgba(0, 0, 0, 0.6),
     0 0 0 1px rgba(255, 255, 255, 0.06);
-  backface-visibility: hidden;
   transition: box-shadow 0.35s ease;
 }
 
-/* Hover: purple accent ring + soft purple glow shadow. No scale —
-   scaling is omitted because it interacted poorly with the 3D orbit
-   transforms (rotation + translate + z) on the parent .frame, cutting
-   the left/top edges after projection. A box-shadow hover is purely
-   additive — the shadow extends outside the element's box without
-   affecting the element's own size or its position in the orbit.
-
-   The .is-hovered class is toggled by JS (mouseenter/mouseleave)
-   instead of CSS :hover because the browser's :hover hit-testing is
-   unreliable on 3D-transformed elements that update their transform
-   every scroll frame — the hit area shifts with each transform,
-   causing the hover state to flicker. */
-.frame.is-hovered .frame__inner {
+.frame.is-hovered .frame__front {
   box-shadow:
     0 0 0 2px rgba(139, 92, 246, 0.7),
     0 30px 100px rgba(139, 92, 246, 0.35);
 }
 
-.frame__inner img {
+.frame__front img {
   width: 100%;
   height: 100%;
+  /* `cover` fills the frame entirely — no letterboxing, no stretch.
+     It crops the overflow on the longer axis. For landscape images in
+     a 16/10 frame the crop is minimal; for portrait phone screenshots
+     the portrait frame variant (9/16) means the image fills perfectly
+     with essentially no cropping.
+
+     The previous `contain` setting left portrait images as tiny
+     centered thumbnails surrounded by empty space, which made them
+     look blurry because they were displayed well below their native
+     resolution. */
   object-fit: cover;
+  object-position: center;
   display: block;
   /* fallback while assets are missing */
   background: #1b1b25;
   transition: filter 0.35s ease;
 }
 
-.frame.is-hovered .frame__inner img {
+.frame.is-hovered .frame__front img {
   filter: brightness(1.15);
+}
+
+/* `contain` shows the ENTIRE image scaled to fit inside the frame
+   with no cropping. The frame's dark gradient background fills the
+   letterbox gap so it looks like an intentional border. Used for
+   screenshots where seeing the full page matters (e.g. project 2's
+   wide dashboard whose sides were being cut off by `cover`).
+   `image-rendering: high-quality` forces the browser to use a
+   higher-quality resampling algorithm when downscaling, which keeps
+   fine text and UI lines sharp instead of soft/blurry. */
+.frame__front img.frame__img--contain {
+  object-fit: contain;
+  background: transparent;
+  image-rendering: high-quality;
+  -webkit-font-smoothing: antialiased;
+  transition: filter 0.35s ease;
 }
 
 .frame__meta {
@@ -684,6 +747,186 @@ section p {
 .frame.is-hovered .frame__meta {
   transform: translateY(0);
   opacity: 1;
+}
+
+/* Small "tap to flip" hint on the front face */
+.frame__flip-hint {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.85rem;
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  color: rgba(244, 244, 245, 0.4);
+  text-transform: lowercase;
+  pointer-events: none;
+  user-select: none;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.frame.is-hovered .frame__flip-hint {
+  opacity: 1;
+}
+
+/* ---------- BACK FACE ---------- */
+/* Rotated 180deg so it faces backward initially, then becomes the
+   front when .frame__card is flipped. */
+.frame__back {
+  transform: rotateY(180deg);
+  background: linear-gradient(180deg, rgba(20, 14, 35, 0.97), rgba(8, 6, 18, 0.97));
+  border: 1px solid rgba(139, 92, 246, 0.35);
+  box-shadow:
+    0 0 0 1px rgba(139, 92, 246, 0.18),
+    0 30px 100px rgba(0, 0, 0, 0.7),
+    0 0 80px rgba(139, 92, 246, 0.25),
+    inset 0 0 60px rgba(139, 92, 246, 0.06);
+  display: flex;
+  flex-direction: column;
+  color: #f4f4f5;
+}
+
+/* Decorative grid on the back face */
+.frame__back-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(139, 92, 246, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139, 92, 246, 0.05) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* Chamfered corner brackets */
+.frame__corner {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-color: rgba(139, 92, 246, 0.85);
+  border-style: solid;
+  border-width: 0;
+  pointer-events: none;
+}
+.frame__corner--tl { top: 8px; left: 8px;     border-top-width: 2px;    border-left-width: 2px; }
+.frame__corner--tr { top: 8px; right: 8px;    border-top-width: 2px;    border-right-width: 2px; }
+.frame__corner--bl { bottom: 8px; left: 8px;  border-bottom-width: 2px; border-left-width: 2px; }
+.frame__corner--br { bottom: 8px; right: 8px; border-bottom-width: 2px; border-right-width: 2px; }
+
+.frame__back-content {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.6rem;
+  padding: 1.5rem 1.4rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.frame__back-content::-webkit-scrollbar { width: 3px; }
+.frame__back-content::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.4);
+  border-radius: 3px;
+}
+
+.frame__back-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  color: rgba(244, 244, 245, 0.55);
+  text-transform: uppercase;
+}
+
+.frame__back-tag {
+  color: #c4b5fd;
+  padding: 0.2rem 0.5rem;
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  border-radius: 4px;
+  background: rgba(139, 92, 246, 0.12);
+}
+
+.frame__back-divider { opacity: 0.4; }
+.frame__back-id { color: rgba(244, 244, 245, 0.65); }
+
+.frame__back-title {
+  font-size: clamp(1.2rem, 2.2vw, 1.65rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  margin: 0;
+  background: linear-gradient(120deg, #f4f4f5 30%, #c4b5fd 70%, #8b5cf6 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.frame__back-desc {
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: rgba(244, 244, 245, 0.75);
+  margin: 0;
+}
+
+.frame__back-stack {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.35rem;
+  margin-top: 0.2rem;
+}
+
+.frame__back-chip {
+  display: inline-block;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: #f4f4f5;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.frame__back-chip:hover {
+  background: rgba(139, 92, 246, 0.15);
+  border-color: rgba(139, 92, 246, 0.45);
+}
+
+.frame__back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  align-self: center;
+  margin-top: 0.4rem;
+  padding: 0.45rem 0.8rem;
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #f4f4f5;
+  background: rgba(139, 92, 246, 0.12);
+  border: 1px solid rgba(139, 92, 246, 0.45);
+  border-radius: 8px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease,
+              transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.frame__back-link:hover {
+  background: rgba(139, 92, 246, 0.25);
+  border-color: rgba(139, 92, 246, 0.85);
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.4),
+              0 0 24px rgba(139, 92, 246, 0.35);
 }
 
 .frame__tag {
